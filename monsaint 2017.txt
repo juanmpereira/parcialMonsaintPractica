@@ -1,0 +1,168 @@
+1) Toda operación comienza con la creación de un Contrato de Canje, en el cual se especifica una deuda a pagar en granos,
+ y el nombre del productor que está realizando la operación.
+Luego, a medida que va cultivando, el productor envía el grano en camiones hacia la empresa, 
+y realiza descargas de este grano hasta cubrir la totalidad de su deuda.
+ Es común que se hagan varias descargas hasta completar un contrato.
+El contrato tiene siempre una deuda pendiente abierta, que es la diferencia entre el grano pactado y 
+lo que ya ha sido descargado, la cual puede ser consultada por el productor en cualquier momento.
+
+
+Class Contrato{
+ 	productor;
+	monto;
+	descargas;
+	
+	descargaAceptada(descarga){
+	monto = monto - descarga.getMonto();
+	}
+}
+
+2)Cuando una descarga es realizada, se cargan sus datos (el productor y la cantidad de grano) y 
+se la marca como En revisión. Más tarde, especialistas agregan un porcentaje de rendimiento de ese grano, 
+que es lo que efectivamente se descontará de la deuda. Una vez que un especialista la marca como Lista,
+el dato del rendimiento no puede ser alterado más.
+
+Poder crear una descarga para una cantidad de grano de un productor. Una vez creada, 
+la descarga es visualizable pero no editable, salvo el rendimiento,
+Marcar una descarga como lista, bloqueando la edición del rendimiento.
+
+Class Descarga{
+	productor;
+	monto;
+	revision;
+	estado = new EnRevision(this)
+	porcentaje;
+	repo = repoContratos
+
+	setEstado(estado) { 
+	this.estado = estado;
+	repo.obtenerContratoDisponible(productor,monto).descargaAceptada(descarga);  
+	}
+	
+	setPorcentaje(porcentaje)
+
+	getMontoFinal() { return monto*porcentaje/100 }
+}
+
+
+Interface Estado{
+ 	cambiarPorcentaje()
+}
+
+EnRevision implements Estado{
+	Descarga
+	cambiarPorcentaje(porcentaje){
+	descarga.setPorcentaje(porcentaje);
+	}
+	marcarComoLista(){ Descarga.setEstado(new Lista) }
+}
+
+Lista implements Estado { 
+	cambiarPorcentaje{ throw Exception}                           
+}
+
+
+
+
+3) el sistema debe permitir crear un contrato para un productor por una determinada cantidad de grano, 
+y al marcarse una descarga como Lista, debe ser capaz de descontar el valor correspondiente a esta del saldo del mismo.
+ Una descarga de un productor puede aplicar a cualquier contrato de ese productor.
+
+Class RepoContratos{
+	contratos;
+	
+	obtenerContratoDisponible(productor,monto) { 
+	contratos.filter(c->c.getProductor == decarga.getProductor() and c.getMonto >= descarga.getMontoFinal())
+	.get(0)
+        }
+}
+
+Class Contrato{
+ 	productor;
+	monto;
+	descargas;
+	
+	descargaAceptada(descarga){
+	monto = monto - descarga.getMontoFinal();
+	}
+}
+
+
+
+4)Crear un contrato implica determinar la deuda inicial en granos, el productor y el grano que se descargará.
+ Un contrato está, además, compuesto por una serie de cláusulas.
+
+Class Contrato{
+ 	productor;
+	monto;
+	descargas;
+	clausulas;
+	
+	descargaAceptada(descarga){
+	monto = monto - descarga.getMontoFinal();
+	}
+}
+
+5)Otro detalle a tener en cuenta es que cuando un empleado de Monsaint crea un contrato, primero debe 
+guardarlo como borrador, hasta que éste chequea la situación crediticia del productor y recién entonces se crea 
+el contrato definitivo. Este chequeo suele ser inmediato pero, en algunos casos, puede llevar días.
+
+Class ContratoBuilder{
+	productor;
+	monto;
+	clausulas;
+	
+	setProductor()
+	setMonto()
+	setClausulas()
+	aprobarContrato(){ return new Contrato(productor,monto,clausulas }
+}
+
+6)Asimismo, dado que a veces los productores se atrasan mas allá de la fecha de vencimiento del contrato, 
+debe ser posible agregarles penalizaciones, que aumenten el saldo de la deuda del contrato.
+
+
+Class Contrato{
+ 	productor;
+	monto;
+	descargas;
+	clausulas;
+	
+	descargaAceptada(descarga){
+		monto = monto - descarga.getMontoFinal();
+	}
+	
+	penalizarProductor(cantidad) { 
+	  if(LocalDate.now().compareTo(fechaVencimiento) < 0) 	
+		monto += cantidad;
+	  else
+		throw Exception ("no se paso de la fecha");
+	}
+}
+
+7)Ver el saldo de un contrato en algún punto del pasado.
+
+
+
+Class Contrato{
+ 	productor;
+	monto;
+	descargasAceptadas;
+	clausulas;
+	
+	descargaAceptada(descarga){
+		monto = monto - descarga.getMontoFinal();
+		descargasAceptadas.add(descarga);
+	}
+	
+	penalizarProductor(cantidad) { 
+	  if(LocalDate.now().compareTo(fechaVencimiento) < 0) 	
+		monto += cantidad;
+	  else
+		throw Exception ("no se paso de la fecha");
+	}
+
+	verMontoPasado(cantidad){
+	return monto - descargas.getLast(cantidad).mapToDouble(d->d.getMontoFinal()).sum() )
+	}	
+}
