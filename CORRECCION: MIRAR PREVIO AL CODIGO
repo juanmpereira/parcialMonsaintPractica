@@ -1,0 +1,10 @@
+En la parte de los estados me di cuenta que esta mal que el estado llame a la descarga si este mismo no la conoce.
+Se me ocurrieron dos idea:
+1) Que en el setPorcentaje de descarga pregunte al estado si permite modificarlo y polimorficamente le responde segun si es en revision o Lista.
+2) Eliminar la interface y dejar el estado solo como un String. Ya que, al preguntar si lo permite es lo mismo que preguntar si es un determinado String y 
+haciendo un solo metodo marcarComoLista() podria hacer que solo se pueda cambiar de EnRevision a Lista y no viceversa.
+
+Si bien la segundo idea es menos flexible es mucho mas simple ya que evita clases innecesarias como el estado que, de esta forma no tendria comportamiento. 
+De no avisar que se van a agregar nuevos estados ni comportamiento de estados a futuro yo iria por esta segundo opcion. 
+
+Espero en issue o mail ver si esta idea estaria bien o que deberia hacer.
