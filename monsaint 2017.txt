@@ -2,7 +2,7 @@
  y el nombre del productor que está realizando la operación.
 Luego, a medida que va cultivando, el productor envía el grano en camiones hacia la empresa, 
 y realiza descargas de este grano hasta cubrir la totalidad de su deuda.
- Es común que se hagan varias descargas hasta completar un contrato.
+Es común que se hagan varias descargas hasta completar un contrato.
 El contrato tiene siempre una deuda pendiente abierta, que es la diferencia entre el grano pactado y 
 lo que ya ha sido descargado, la cual puede ser consultada por el productor en cualquier momento.
 
@@ -10,10 +10,12 @@ lo que ya ha sido descargado, la cual puede ser consultada por el productor en c
 Class Contrato{
  	productor;
 	monto;
+	//TODO: esto no lo estas usando 
 	descargas;
 	
+	//TODO: Trataria de evitar estos metodos que pisan valores iniciales, porque si bien te estas quedando con el valor que le deben, perdes por cuanto se firmo originalmente el contrato. O que descargas se aplicaron. Fijate que encima hay un requerimiento que te pide saber el estado del contrato en cierto momento, entonces si vos no tenes el valor original ni las descargas probablemente no puedas volver al pasado. 
 	descargaAceptada(descarga){
-	monto = monto - descarga.getMonto();
+   	    monto = monto - descarga.getMonto();
 	}
 }
 
@@ -35,10 +37,15 @@ Class Descarga{
 	repo = repoContratos
 
 	setEstado(estado) { 
-	this.estado = estado;
-	repo.obtenerContratoDisponible(productor,monto).descargaAceptada(descarga);  
+	   //TODO: ojo que no tenes ninguna validacion acá, no solo porque le podrías cambiar el estado, sino que tal vez notificas en un estado incorrecto.
+	   this.estado = estado;
+	   //TODO esto en realidad se hace en otro modulo (comentario del mail)
+	   // faltan notificaciones
+	   repo.obtenerContratoDisponible(productor,monto).descargaAceptada(descarga);  
 	}
-	
+   
+        //TODO falta el metodo que delega en el estado
+ 
 	setPorcentaje(porcentaje)
 
 	getMontoFinal() { return monto*porcentaje/100 }
@@ -52,12 +59,14 @@ Interface Estado{
 EnRevision implements Estado{
 	Descarga
 	cambiarPorcentaje(porcentaje){
-	descarga.setPorcentaje(porcentaje);
+	   descarga.setPorcentaje(porcentaje);
 	}
+	//TODO quien llama a esto?
 	marcarComoLista(){ Descarga.setEstado(new Lista) }
 }
 
 Lista implements Estado { 
+        //TODO falta implemnetar el marcar como lista?
 	cambiarPorcentaje{ throw Exception}                           
 }
 
@@ -72,8 +81,10 @@ Class RepoContratos{
 	contratos;
 	
 	obtenerContratoDisponible(productor,monto) { 
-	contratos.filter(c->c.getProductor == decarga.getProductor() and c.getMonto >= descarga.getMontoFinal())
-	.get(0)
+		//TODO: c.getMonto >= descarga.getMontoFinal()
+		// esto no esta explicito en este ejercicio, pero en realidad si lo quisieras hacer completo deberías ir llenando de a poco los contratos, o sea,
+		// podría llenar a uno y si le sobra seguir llenando otro contrato
+		contratos.filter(c->c.getProductor == decarga.getProductor() and c.getMonto >= descarga.getMontoFinal()).get(0)
         }
 }
 
@@ -83,7 +94,7 @@ Class Contrato{
 	descargas;
 	
 	descargaAceptada(descarga){
-	monto = monto - descarga.getMontoFinal();
+	   monto = monto - descarga.getMontoFinal();
 	}
 }
 
@@ -92,11 +103,14 @@ Class Contrato{
 4)Crear un contrato implica determinar la deuda inicial en granos, el productor y el grano que se descargará.
  Un contrato está, además, compuesto por una serie de cláusulas.
 
+
 Class Contrato{
  	productor;
 	monto;
 	descargas;
+	//TODO faltan las clausulas especificas del tipo de grano.
 	clausulas;
+	
 	
 	descargaAceptada(descarga){
 	monto = monto - descarga.getMontoFinal();
@@ -107,6 +121,7 @@ Class Contrato{
 guardarlo como borrador, hasta que éste chequea la situación crediticia del productor y recién entonces se crea 
 el contrato definitivo. Este chequeo suele ser inmediato pero, en algunos casos, puede llevar días.
 
+//ok
 Class ContratoBuilder{
 	productor;
 	monto;
@@ -132,6 +147,7 @@ Class Contrato{
 		monto = monto - descarga.getMontoFinal();
 	}
 	
+	//TODO: Ok lo de la fecha, pero el mismo comentario de antes sobre el efecto
 	penalizarProductor(cantidad) { 
 	  if(LocalDate.now().compareTo(fechaVencimiento) < 0) 	
 		monto += cantidad;
@@ -162,7 +178,10 @@ Class Contrato{
 		throw Exception ("no se paso de la fecha");
 	}
 
+        //TODO, no entiendo que es cantidad. cuantos saca de la lista?
+	// ojo que en realidad es monto - this.totalDescargas(fecha) + this.penalizaciones(fecha)
 	verMontoPasado(cantidad){
-	return monto - descargas.getLast(cantidad).mapToDouble(d->d.getMontoFinal()).sum() )
+	    //TODO: delegar ese map y sum :D
+	   return monto - descargas.getLast(cantidad).mapToDouble(d->d.getMontoFinal()).sum() )
 	}	
 }
