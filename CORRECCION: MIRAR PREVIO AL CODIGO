@@ -1,6 +1,10 @@
 En la parte de los estados me di cuenta que esta mal que el estado llame a la descarga si este mismo no la conoce.
 Se me ocurrieron dos idea:
+
+//TODO: si hicieras eso no terminarian actuando como booleanos?
 1) Que en el setPorcentaje de descarga pregunte al estado si permite modificarlo y polimorficamente le responde segun si es en revision o Lista.
+
+//TODO: un enum que es algo en el medio? un boolean porque tenes dos opciones?
 2) Eliminar la interface y dejar el estado solo como un String. Ya que, al preguntar si lo permite es lo mismo que preguntar si es un determinado String y 
 haciendo un solo metodo marcarComoLista() podria hacer que solo se pueda cambiar de EnRevision a Lista y no viceversa.
 
